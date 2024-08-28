@@ -1,6 +1,7 @@
 // db/userModel.js
 const db = require('./database');
 
+
 class UserModel {
   async createUser(name, email, age) {
     const query = 'INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING *';
@@ -35,10 +36,27 @@ class UserModel {
   }
 
   async registrateUser(name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3) {
-    const query = 'INSERT INTO users (name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)RETURNING *';
-    const values = [name, surname, nickname, email, password,securityQuestion1, securityQuestion2, securityQuestion3];
+    
+    const query = 'INSERT INTO users (name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *';
+    const values = [name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3];
     const result = await db.query(query, values);
     return result.rows[0];
+  }
+
+  async authenticateUser(email, password) {
+    const query = 'SELECT * FROM users WHERE email = $1';
+    const result = await db.query(query, [email]);
+    const user = result.rows[0];
+
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    if (password!=user.password) {
+      throw new Error('Contraseña incorrecta');
+    }
+
+    return user;
   }
 }
 

@@ -19,18 +19,26 @@ const controller = {
         } else {
             return null
         }
+    },
+
+    autenticarUsuario: async (email, password) => {
+        try {
+            const user = await dbConnection.authenticateUser(email, password);
+            return user;
+        } catch (error) {
+            console.error('Error al autenticar el usuario:', error);
+            throw new Error('Autenticación fallida');
+        }
     }
 }
 
-export const validatePassword = (password) => {
+const validatePassword = (password) => {
     if (password.length >= 8) {
-        const regular = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$%^&+=!])[A-Za-z\d@#$%^&+=!]{8,}$/;
+        const regular = /^(?=.[A-Z])(?=.[a-z])(?=.\d)(?=.[@#$%^&+=!])[A-Za-z\d@#$%^&+=!]{8,}$/;
         return regular.test(password);
 
     }
     return false
 }
 
-module.exports = controller
-
-
+module.exports = controller, validatePassword

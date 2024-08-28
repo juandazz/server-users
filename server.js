@@ -21,12 +21,23 @@ app.post('/api/registro', (req, res) => {
     res.json({ answer: controller.registrarUsuario(datosRecibidos) });
 });
 
+// Ruta POST autentica usuario
+app.post('/api/auth', async (req, res) => {
+    try {
+        console.log(req.body)
+        const { email, password } = req.body;
+        const usuarioAutenticado = await controller.autenticarUsuario(email, password);
+        res.json({ answer: usuarioAutenticado });
+    } catch (error) {
+        res.status(401).json({ mensaje: 'Autenticación fallida', error: error.message });
+    }
+});
+
 // Ruta POST - Recibe datos y los devuelve como respuesta
 app.post('/api/echo', (req, res) => {
     const datosRecibidos = req.body;
     res.json({ mensaje: 'Datos recibidos correctamente', datos: datosRecibidos });
 });
-
 
 
 // Inicia el servidor
