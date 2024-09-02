@@ -22,7 +22,7 @@ const controller = {
     }
 }
 
-export const validatePassword = (password) => {
+const validatePassword = (password) => {
     if (password.length >= 8) {
         const regular = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$%^&+=!])[A-Za-z\d@#$%^&+=!]{8,}$/;
         return regular.test(password);
@@ -30,6 +30,12 @@ export const validatePassword = (password) => {
     }
     return false
 }
+
+
+// Ejemplo de uso
+const username = "nombreImportante1";
+console.log(validateUsername(username)); // Debería retornar false
+
 
 module.exports = controller
 
