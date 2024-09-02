@@ -33,9 +33,6 @@ const validatePassword = (password) => {
 }
 
 
-
-
-
 module.exports = controller
 
 
