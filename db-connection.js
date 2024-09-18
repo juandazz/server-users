@@ -45,7 +45,7 @@ class UserModel {
     const query = 'SELECT * FROM users WHERE email = $1';
     const result = await db.query(query, [email]);
     const user = result.rows[0];
-    console.log(user + 'user db')
+    
 
     if (!user) {
       throw new Error('Usuario no encontrado');
