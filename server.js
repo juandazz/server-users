@@ -42,6 +42,25 @@ app.post('/api/echo', (req, res) => {
     const datosRecibidos = req.body;
     res.json({ mensaje: 'Datos recibidos correctamente', datos: datosRecibidos });
 });
+// Ruta GET autentica usuario
+app.post('/api/auth', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        console.log('Email:', email, 'Password:', password); // Verificar en el servidor
+
+        const usuarioAutenticado = await controller.autenticarUsuario(email, password);
+
+        if (usuarioAutenticado) {
+            res.status(200).json({ mensaje: 'Autenticación exitosa', usuario: usuarioAutenticado });
+        } else {
+            res.status(401).json({ mensaje: 'Autenticación fallida' });
+        }
+
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
 
 
 
