@@ -9,7 +9,7 @@ class Database {
       //password: 'karen', // karen
       password: 'root', // daniel
      // port: 5433, //karen:5433 
-
+//
       port: 5432, // JuanD: 5432)
     });
 
