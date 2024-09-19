@@ -57,7 +57,7 @@ const controller = {
 
     autenticarUsuario: async (email, password) => {
         try {
-            const user = await dbConnection.authenticateUser(email, password);
+            const user = await dbConnection.user.authenticateUser(email, password);
             return user;
         } catch (error) {
             console.error('Error al autenticar el usuario:', error);
