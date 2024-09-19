@@ -15,11 +15,46 @@ const controller = {
         if (valido) {
             console.log("Aqui2");
 
-            return dbConnection.registrateUser(name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3)
+            return dbConnection.user.registrateUser(name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3)
         } else {
+
             return null
         }
+    },
+    obtenerSubastas: (  ) => {
+
+        const productosSubasta =[]
+
+        const productosSubastaDB = dbConnection.auction.getUserAuctions()
+
+        for ( const productoSubastaDB of productosSubastaDB ) {
+            const unProductoSubasta = {}
+
+            unProductoSubasta.id = productoSubastaDB.idproduct
+            unProductoSubasta.name = productoSubastaDB.name
+            unProductoSubasta.description = productoSubastaDB.description
+            unProductoSubasta.imageUrl = productoSubastaDB.image
+            unProductoSubasta.currentBid = productoSubastaDB.current_bid
+            unProductoSubasta.buyNowPrice = productoSubastaDB.buy_now_price
+            unProductoSubasta.auctionEndTime = productoSubastaDB.end_time
+
+            productosSubasta.push(unProductoSubasta)
+        }
+
+        return productosSubasta
+    },
+
+    registrateAuction: (auction) =>{
+    
+        return dbConnection.auction.createAuction(
+            auction.currentBid, 
+            auction.buyNowPrice, 
+            auction.auctionEndTime, 
+            auction.iduser, 
+            auction.idproduct
+        )
     }
+
 }
 
 const validatePassword = (password) => { 
@@ -31,6 +66,18 @@ const validatePassword = (password) => {
     }
     return false
 }
+
+const valorPuja = (valor_actual) => {
+
+    if(valor_actual){
+        
+    }
+}
+
+
+
+
+
 
 
 module.exports = controller

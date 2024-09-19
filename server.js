@@ -17,9 +17,25 @@ app.get('/api/saludo', (req, res) => {
 
 // Ruta POST - Recibe datos y los devuelve como respuesta
 app.post('/api/registro', (req, res) => {
+
     const datosRecibidos = req.body;
     res.json({ answer: controller.registrarUsuario(datosRecibidos) });
 });
+
+app.get('/api/subastas', (req, res) => {
+    res.json(controller.obtenerSubastas());
+});
+
+app.post('/api/new/auction', (req, res) => {
+    const datosRecibidos = req.body;
+    res.json({ answer: controller.registrateAuction(datosRecibidos) });
+});
+
+app.post('/api/new/bid', (req, res) => {
+    const datosRecibidos = req.body;
+    res.json({ answer: controller.registrateAuction(datosRecibidos) });
+});
+
 
 // Ruta POST - Recibe datos y los devuelve como respuesta
 app.post('/api/echo', (req, res) => {
