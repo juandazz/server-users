@@ -43,6 +43,22 @@ class UserModel {
     return result.rows[0];
   }
 
+  async authenticateUser(email, password) {
+    const query = 'SELECT * FROM users WHERE email = $1';
+    const result = await db.query(query, [email]);
+    const user = result.rows[0];
+
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    if (password!=user.password) {
+      throw new Error('Contraseña incorrecta');
+    }
+
+    return user;
+  }
+
 }
 
 //SUBASTA

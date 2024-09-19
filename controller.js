@@ -53,7 +53,18 @@ const controller = {
             auction.iduser, 
             auction.idproduct
         )
-    }
+    },
+
+    autenticarUsuario: async (email, password) => {
+        try {
+            const user = await dbConnection.authenticateUser(email, password);
+            return user;
+        } catch (error) {
+            console.error('Error al autenticar el usuario:', error);
+            throw new Error('Autenticación fallida');
+        }
+    }
+
 
 }
 
@@ -72,6 +83,8 @@ const valorPuja = (valor_actual) => {
     if(valor_actual){
         
     }
+
+    
 }
 
 
