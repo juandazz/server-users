@@ -21,11 +21,15 @@ const controller = {
             return null
         }
     },
-    obtenerSubastas: (  ) => {
+
+    obtenerSubastas: async (  ) => {
 
         const productosSubasta =[]
 
-        const productosSubastaDB = dbConnection.auction.getUserAuctions()
+        const productosSubastaDB = await dbConnection.auction.getUserAuctions()
+
+        console.log(productosSubastaDB); // Verifica el tipo de valor devuelto
+
 
         for ( const productoSubastaDB of productosSubastaDB ) {
             const unProductoSubasta = {}
@@ -41,7 +45,7 @@ const controller = {
             productosSubasta.push(unProductoSubasta)
         }
 
-        return productosSubasta
+        return productosSubastaDB
     },
 
     registrateAuction: (auction) =>{

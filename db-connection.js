@@ -66,11 +66,26 @@ class UserModel {
 class AuctionModel {
 
   async createAuction(current_bid, buy_now_price, end_time, iduser, idproduct) {
-    const query = 'INSERT INTO auctions (current_bid, buy_now_price, end_time, iduser , idproduct) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-    const values = [current_bid, buy_now_price, end_time, iduser, idproduct];
-    const result = await db.query(query, values);
-    return result.rows[0];
+    // Asegúrate de que end_time esté en el formato correcto
+      const formattedEndTime = new Date(end_time).toISOString(); // Convierte a ISO 8601
+      
+      const query = `
+          INSERT INTO auctions (current_bid, buy_now_price, end_time, iduser, idproduct)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING *;
+      `;
+      
+      const values = [current_bid, buy_now_price, formattedEndTime, iduser, idproduct];
+      
+      try {
+          const result = await db.query(query, values);
+          return result.rows[0];
+      } catch (err) {
+          console.error('Error al crear subasta:', err.message);
+          throw err; // Re-lanzar el error para manejarlo más arriba si es necesario
+      }
   }
+
 
 
   async deleteSubasta(idauction) {
@@ -113,7 +128,7 @@ class AuctionModel {
     FROM auctions a, products p
     WHERE a.idproduct=p.idproduct`;
     const result = await db.query(query);
-    return result.rows;
+    return await result.rows;
   }
 
 
