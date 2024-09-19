@@ -17,33 +17,23 @@ app.get('/api/saludo', (req, res) => {
 
 // Ruta POST - Recibe datos y los devuelve como respuesta
 app.post('/api/registro', (req, res) => {
+
     const datosRecibidos = req.body;
     res.json({ answer: controller.registrarUsuario(datosRecibidos) });
 });
 
-// Ruta GET autentica usuario
-app.post('/api/auth', async (req, res) => {
-    try {
-        console.log(req.body)
-        const { email, password } = req.body;
+app.get('/api/subastas', (req, res) => {
+    res.json(controller.obtenerSubastas());
+});
 
-        // Verificar si los parámetros existen
-        if (!email || !password) {
-            return res.status(400).json({ mensaje: 'Por favor, proporciona email y password' });
-        }
+app.post('/api/new/auction', (req, res) => {
+    const datosRecibidos = req.body;
+    res.json({ answer: controller.registrateAuction(datosRecibidos) });
+});
 
-        // Autenticar el usuario utilizando el controlador
-        const usuarioAutenticado = await controller.autenticarUsuario(email, password);
-
-        if (usuarioAutenticado) {
-            res.status(200).json({ mensaje: 'Autenticación exitosa', usuario: usuarioAutenticado });
-        } else {
-            res.status(401).json({ mensaje: 'Autenticación fallida' });
-        }
-
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
-    }
+app.post('/api/new/bid', (req, res) => {
+    const datosRecibidos = req.body;
+    res.json({ answer: controller.registrateAuction(datosRecibidos) });
 });
 
 
