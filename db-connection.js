@@ -14,6 +14,7 @@ class UserModel {
     const query = 'SELECT * FROM users';
     const result = await db.query(query);
     return result.rows;
+
   }
 
   async getUserById(id) {
