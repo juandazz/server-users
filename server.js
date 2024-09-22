@@ -1,3 +1,4 @@
+const morgan = require('morgan');
 const controller = require('./controller');
 // Importa Express
 const express = require('express');
@@ -7,6 +8,7 @@ const port = 4000;
 
 // Middleware para parsear JSON en el cuerpo de las solicitudes
 app.use(express.json());
+app.use(morgan('dev'));
 app.use(cors());
 
 // Ruta GET - Devuelve un mensaje de saludo
@@ -65,6 +67,6 @@ app.post('/api/auth', async (req, res) => {
 
 
 // Inicia el servidor
-app.listen(port, () => {
+app.listen(port,'localhost', () => {
     console.log(`Servidor Express escuchando en http://localhost:${port}`);
 });
