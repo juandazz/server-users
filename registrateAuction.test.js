@@ -40,3 +40,21 @@ describe('registrateAuction', function () {
         assert.throws(() => registrateAuction(mockAuction), /Error al crear la subasta/);
     });
 });
+
+describe('autenticarUsuario', () => {
+
+    it('debería lanzar un error si ocurre un error inesperado durante la autenticación', async () => {
+      // Mockear un error inesperado
+      dbConnection.authenticateUser.mockRejectedValue(new Error('Error de conexión a la base de datos'));
+  
+      // Intentar autenticar y verificar que se lanza el error apropiado
+      await expect(servicioUsuario.autenticarUsuario('test@example.com', 'password123'))
+        .rejects
+        .toThrow('Autenticación fallida');
+  
+      // Verificar que la función de autenticación fue llamada
+      expect(dbConnection.authenticateUser).toHaveBeenCalledWith('test@example.com', 'password123');
+    });
+  
+  });
+  
