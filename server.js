@@ -3,7 +3,7 @@ const controller = require('./controller');
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = 3000;
+const port = 4000;
 
 // Middleware para parsear JSON en el cuerpo de las solicitudes
 app.use(express.json());
@@ -22,8 +22,8 @@ app.post('/api/registro', (req, res) => {
     res.json({ answer: controller.registrarUsuario(datosRecibidos) });
 });
 
-app.get('/api/subastas', (req, res) => {
-    res.json(controller.obtenerSubastas());
+app.get('/api/subastas', async (req, res) => {
+    res.json(await controller.obtenerSubastas());
 });
 
 app.post('/api/new/auction', (req, res) => {
