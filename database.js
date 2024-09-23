@@ -6,12 +6,9 @@ class Database {
       user: 'postgres',
       host: 'localhost',
       database: 'TNB3-db',
-      password: 'root', // le cambie el password
-      port: 5432, //tengo otro puerto (karen:5433 - JuanD: 5432)
-
-     // password: 'karen', // karen
-    
-     //port: 5433, //kare
+      password: 'karen', // karen
+    //  password: 'root', // daniel
+     port: 5433, //karen:5433 
     //  port: 5432, // JuanD: 5432)
 
     });
