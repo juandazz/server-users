@@ -36,7 +36,6 @@ class UserModel {
     return result.rows[0];
   }
 
-
   async registrateUser(name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3, credits) {
     const query = 'INSERT INTO users (name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3,credits) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)RETURNING *';
     const values = [name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3,credits];
@@ -59,22 +58,26 @@ class UserModel {
 
     return user;
   }
-
-  async  getCreditsUser(iduser) {
-  const query = 'SELECT credits FROM users WHERE iduser = $1';
-  try {
+  
+  async getCreditsUser(iduser) {
+    try {
+      console.log(iduser)
+      const query = 'SELECT credits FROM users WHERE iduser = $1';
       const result = await db.query(query, [iduser]);
+  
       if (result.rows.length > 0) {
-          return result.rows[0].credits;  
+        const credits = result.rows[0];
+        console.log(credits);
+        return result.rows[0].credits;
       } else {
-          throw new Error(`Usuario con id ${iduser} no encontrado.`);
+        throw new Error(`Usuario con id ${iduser} no encontrado.`);
       }
-  } catch (error) {
+    } catch (error) {
       console.error('Error al obtener los créditos del usuario:', error);
       throw error;
+    }
   }
-}
-
+  
   async setCreditsUser(iduser, credits) {
     const query = 'UPDATE users SET credits = $1 WHERE iduser = $2 RETURNING *';
     try {
@@ -89,9 +92,6 @@ class UserModel {
         throw error;
     }
   }
-
-
-
 }
 
 //SUBASTA

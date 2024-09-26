@@ -38,6 +38,20 @@ app.post('/api/new/bid', (req, res) => {
     res.json({ answer: controller.registrateAuction(datosRecibidos) });
 });
 
+app.post('/api/setCredits/', (req, res)=>{
+    const datos= req.body
+    res.json({ answer: controller.setCreditsUser(datos.iduser, datos.credits) });
+
+
+})
+
+app.post('/api/getCredits/', async (req, res)=> {
+    const {iduser}= req.body
+    const usuario = await controller.getCreditsUser(iduser)
+    res.json({ usuario: usuario});
+
+})
+
 
 // Ruta POST - Recibe datos y los devuelve como respuesta
 app.post('/api/echo', (req, res) => {
@@ -49,7 +63,6 @@ app.post('/api/auth', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        console.log('Email:', email, 'Password:', password); // Verificar en el servidor
 
         const usuarioAutenticado = await controller.autenticarUsuario(email, password);
 
