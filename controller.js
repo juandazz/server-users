@@ -2,8 +2,11 @@ const dbConnection = require('./db-connection');
 
 const controller = {
     registrarUsuario: (user) => {
-        let valido = true;
-        const { name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3 } = user;
+
+        let valido = true
+       
+
+        const { name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3 } = user
 
         if (!validatePassword(password)) {
             valido = false;
