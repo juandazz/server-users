@@ -17,15 +17,15 @@ class UserModel {
 
   }
 
-  async getUserById(id) {
-    const query = 'SELECT * FROM users WHERE id = $1';
-    const result = await db.query(query, [id]);
+  async getUserById(iduser) {
+    const query = 'SELECT * FROM users WHERE iduser = $1';
+    const result = await db.query(query, [iduser]);
     return result.rows[0];
   }
 
-  async updateUser(id, name, email, age) {
-    const query = 'UPDATE users SET name = $1, email = $2, age = $3 WHERE id = $4 RETURNING *';
-    const values = [name, email, age, id];
+  async updateUser(iduser, name, email, age) {
+    const query = 'UPDATE users SET name = $1, email = $2, age = $3 WHERE iduser = $4 RETURNING *';
+    const values = [name, email, age, iduser];
     const result = await db.query(query, values);
     return result.rows[0];
   }
@@ -36,9 +36,10 @@ class UserModel {
     return result.rows[0];
   }
 
-  async registrateUser(name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3) {
-    const query = 'INSERT INTO users (name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)RETURNING *';
-    const values = [name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3];
+
+  async registrateUser(name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3, credits) {
+    const query = 'INSERT INTO users (name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3,credits) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)RETURNING *';
+    const values = [name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3,credits];
     const result = await db.query(query, values);
     return result.rows[0];
   }
@@ -56,8 +57,40 @@ class UserModel {
       throw new Error('Contraseña incorrecta');
     }
 
-    return user;
-  }
+    return user;
+  }
+
+  async  getCreditsUser(iduser) {
+  const query = 'SELECT credits FROM users WHERE iduser = $1';
+  try {
+      const result = await db.query(query, [iduser]);
+      if (result.rows.length > 0) {
+          return result.rows[0].credits;  
+      } else {
+          throw new Error(`Usuario con id ${iduser} no encontrado.`);
+      }
+  } catch (error) {
+      console.error('Error al obtener los créditos del usuario:', error);
+      throw error;
+  }
+}
+
+  async setCreditsUser(iduser, credits) {
+    const query = 'UPDATE users SET credits = $1 WHERE iduser = $2 RETURNING *';
+    try {
+        const result = await db.query(query, [credits, iduser]);
+        if (result.rows.length > 0) {
+            return result.rows[0];  // Devolver el usuario actualizado
+        } else {
+            throw new Error(`Usuario con id ${iduser} no encontrado.`);
+        }
+    } catch (error) {
+        console.error('Error al actualizar los créditos del usuario:', error);
+        throw error;
+    }
+  }
+
+
 
 }
 
@@ -137,6 +170,15 @@ class AuctionModel {
     const result = await db.query(query);
     return result.rows;
   }
+
+  async getAuctionsById(idauction) {
+    const query = 'SELECT * FROM auctions WHERE idauction = $1';
+    const result = await db.query(query, [idauction]);
+    return result.rows[0];  // Devuelve la primera fila (subasta encontrada)
+}
+
+
+  
 
 }
 
