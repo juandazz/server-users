@@ -139,9 +139,9 @@ const controller = {
         }
     },
 
-    registrarPuja: async (idUsuario, idSubasta, bid_amount) => {
+    registrarPuja: async (iduser, idauction, bid_amount) => {
         try {
-            const result = await dbConnection.auction.registrarPuja(idUsuario, idSubasta, bid_amount);
+            const result = await dbConnection.auction.registrarPuja(iduser, idauction, bid_amount);
             return result;
         } catch (error) {
             console.error("Error en la puja:", error.message);
