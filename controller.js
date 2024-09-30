@@ -2,8 +2,11 @@ const dbConnection = require('./db-connection');
 
 const controller = {
     registrarUsuario: (user) => {
-        let valido = true;
-        const { name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3 } = user;
+
+        let valido = true
+       
+
+        const { name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3 } = user
 
         if (!validatePassword(password)) {
             valido = false;
@@ -29,7 +32,6 @@ const controller = {
 
         const productosSubastaDB = await dbConnection.auction.getUserAuctions()
 
-        console.log(productosSubastaDB); // Verifica el tipo de valor devuelto
 
 
         for ( const productoSubastaDB of productosSubastaDB ) {
@@ -93,13 +95,21 @@ const controller = {
         
         const updateResult = await dbConnection.user.setCreditsUser(iduser, resultCredits);
 
-        console.log("Créditos actualizados:", updateResult);
         return updateResult;
     } catch (error) {
         console.error("Error al actualizar los créditos:", error);
         throw error;
     }
-},
+
+    },
+
+    getCreditsUser:async(iduser)=>{
+        return await dbConnection.user.getCreditsUser(iduser)
+    },
+
+    setCreditsUser:async(iduser,credits)=>{
+        return await dbConnection.user.setCreditsUser(iduser, credits);
+    },
 
     validateUSer: async(iduser) =>{
         try {
@@ -128,7 +138,6 @@ const controller = {
         
                 const deleteResult = await dbConnection.auction.deleteSubasta(idauction);
     
-                console.log("Subasta eliminada:", deleteResult);
                 return deleteResult;
             } else {
                 throw new Error("La subasta aún no ha expirado.");
