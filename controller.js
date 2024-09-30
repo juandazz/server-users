@@ -137,12 +137,19 @@ const controller = {
             console.error("Error al eliminar la subasta:", error);
             throw error;
         }
+    },
+
+    registrarPuja: async (idUsuario, idSubasta, bid_amount) => {
+        try {
+            const result = await dbConnection.auction.registrarPuja(idUsuario, idSubasta, bid_amount);
+            return result;
+        } catch (error) {
+            console.error("Error en la puja:", error.message);
+            throw new Error('No se pudo registrar la puja.');
+        }
     }
-    
-
-
-
 }
+    
 
 const validatePassword = (password) => { 
     if (password.length >= 8) {
@@ -153,19 +160,6 @@ const validatePassword = (password) => {
     }
     return false
 }
-
-const valorPuja = (valor_actual) => {
-
-    if(valor_actual){
-        
-    }
-
-    
-}
-
-
-
-
 
 
 
