@@ -40,6 +40,7 @@ app.post('/api/new/bid', (req, res) => {
 
 app.post('/api/setCredits/', (req, res)=>{
     const datos= req.body
+    console.log(datos.credits + 'set')
     res.json({ answer: controller.setCreditsUser(datos.iduser, datos.credits) });
 
 
