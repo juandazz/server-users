@@ -33,7 +33,7 @@ app.get('/api/subastas', async (req, res) => {
 app.post('/api/new/auction', (req, res) => {
     try {
         const datosRecibidos = req.body;
-        res.json({ answer: controller.registrateAuction(datosRecibidos) });
+        res.json({ answer: controller.registrateAuction(datosRecibidos) }); // Verifica si este método es correcto
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
@@ -42,62 +42,55 @@ app.post('/api/new/auction', (req, res) => {
 app.post('/api/new/bid', (req, res) => {
     try {
         const datosRecibidos = req.body;
-        res.json({ answer: controller.registrateAuction(datosRecibidos) });
+        res.json({ answer: controller.registerBid(datosRecibidos) }); // Cambiar al método correcto para registrar pujas
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 });
 
-
-app.post('/api/auth', async (req, res) => {
+app.post('/api/setCredits', (req, res) => {
     try {
-        const { email, password } = req.body;
+        const datos = req.body;
+        res.json({ answer: controller.setCreditsUser(datos.iduser, datos.credits) });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
 
-app.post('/api/setCredits/', (req, res)=>{
-    const datos= req.body
-    res.json({ answer: controller.setCreditsUser(datos.iduser, datos.credits) });
+app.post('/api/getCredits', async (req, res) => {
+    try {
+        const { iduser } = req.body;
+        const usuario = await controller.getCreditsUser(iduser);
+        res.json({ usuario: usuario });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
 
-
-})
-
-app.post('/api/getCredits/', async (req, res)=> {
-    const {iduser}= req.body
-    const usuario = await controller.getCreditsUser(iduser)
-    res.json({ usuario: usuario});
-
-})
-
-
-// Ruta POST - Recibe datos y los devuelve como respuesta
 app.post('/api/echo', (req, res) => {
     const datosRecibidos = req.body;
     res.json({ mensaje: 'Datos recibidos correctamente', datos: datosRecibidos });
 });
-// Ruta GET autentica usuario
+
 app.post('/api/auth', async (req, res) => {
     try {
         const { email, password } = req.body;
-
         const usuarioAutenticado = await controller.autenticarUsuario(email, password);
-
         if (usuarioAutenticado) {
             res.status(200).json({ mensaje: 'Autenticación exitosa', usuario: usuarioAutenticado });
         } else {
             res.status(401).json({ mensaje: 'Autenticación fallida' });
         }
-
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 });
 
-// Middleware para manejo de errores global
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ mensaje: 'Ocurrió un error en el servidor', error: err.message });
 });
 
-// Captura errores no manejados
 process.on('uncaughtException', (error) => {
     console.error('Error no capturado:', error);
 });
