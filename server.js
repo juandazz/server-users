@@ -39,14 +39,18 @@ app.post('/api/new/auction', (req, res) => {
     }
 });
 
-app.post('/api/new/bid', (req, res) => {
+app.post('/api/new/bid', async (req, res) => {
     try {
-        const datosRecibidos = req.body;
-        res.json({ answer: controller.registerBid(datosRecibidos) }); // Cambiar al método correcto para registrar pujas
+        const { iduser, idauction, bidAmount} = req.body;
+        console.log(iduser, idauction, bidAmount)
+        const respuesta = await controller.registrarPuja(iduser, idauction, bidAmount);
+        console.log(respuesta)
+        res.json({ answer: respuesta }); // Cambiar al método correcto para registrar pujas
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 });
+
 
 app.post('/api/setCredits', (req, res) => {
     try {
@@ -56,6 +60,7 @@ app.post('/api/setCredits', (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 });
+
 
 app.post('/api/getCredits', async (req, res) => {
     try {
