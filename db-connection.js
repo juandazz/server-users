@@ -167,18 +167,45 @@ class UserModel {
   
 
  
-
+/*
   async getUserAuctions() {
     const query = `
     SELECT 
       a.idauction, p.idproduct, p.name, p.description, 
-      p.image, a.current_bid, a.buy_now_price, a.end_time 
-    FROM auctions a, products p
+      p.image, b.bid_amount, a.buy_now_price, a.end_time 
+    FROM auctions a, products p, 
     WHERE a.idproduct=p.idproduct`;
+
     const result = await db.query(query);
     return await result.rows;
   }
+*/
 
+  async getUserAuctions() {
+    const query = `
+      SELECT 
+        a.idauction, 
+        p.idproduct, 
+        p.name, 
+        p.description, 
+        p.image, 
+        COALESCE((
+          SELECT MAX(b.bid_amount) 
+          FROM bids b 
+          WHERE b.idauction = a.idauction
+        ), a.current_bid) AS current_bid, 
+        a.buy_now_price, 
+        a.end_time 
+      FROM auctions a
+      JOIN products p ON a.idproduct = p.idproduct
+      LEFT JOIN bids b ON b.idauction = a.idauction
+      GROUP BY a.idauction, p.idproduct, p.name, p.description, p.image, a.current_bid, a.buy_now_price, a.end_time;
+    `;
+
+    const result = await db.query(query);
+    console.log(await result.rows)
+    return await result.rows;
+  }
 
   async getAuctions() {
     const query = 'SELECT * FROM actions';
@@ -187,76 +214,125 @@ class UserModel {
   }
 
   async getAuctionsById(idauction) {
-    const query = 'SELECT * FROM auctions WHERE idauction = $1';
-    const result = await db.query(query, [idauction]);
-    return result.rows[0];  // Devuelve la primera fila (subasta encontrada)
-}
+      const query = 'SELECT * FROM auctions WHERE idauction = $1';
+      const result = await db.query(query, [idauction]);
+      return result.rows[0];  // Devuelve la primera fila (subasta encontrada)
+  }
 
-async getClient () {
+  async getClient () {
 
-  const client = await pool.connect();  // Esto te proporciona un cliente del pool de conexiones
-  return client;
-}
+    const client = await pool.connect();  // Esto te proporciona un cliente del pool de conexiones
+    return client;
+  }
 
-async registrarPuja(iduser, idauction, bid_amount) {
+  async registrarPuja(iduser, idauction, bid_amount) {
+    
+
+    //const client = await db.getClient();  // Obtener un cliente para la transacción
+    
+    try {
+    // await client.query('BEGIN');  // Iniciar transacción
+
+      // Verificar si el valor de la puja es mayor que la puja actual
+      const auctionQuery = `
+        SELECT current_bid, end_time
+        FROM auctions
+        WHERE idauction = $1
+      `;
+      const auctionResult = await db.query(auctionQuery, [idauction]);
+      
+      const auction = auctionResult.rows[0];
+
+      if (!auction) {
+        throw new Error('La subasta no existe.');
+      }
+
+      const tiempoRestante = new Date(auction.end_time) - new Date();
+      if (tiempoRestante <= 0) {
+        console.log('La subasta ha terminado.');
+      }
+
+      if (bid_amount <= auction.current_bid) {
+        console.log(bid_amount + 'bid' + auction.current_bid)
+        console.log('La puja debe ser mayor que la actual.');
+        return  //break
+      }
+
+      if(bid_amount>=auction.buy_now_price){
+        return await admitirCompraInmediata(idauction,bid_amount,iduser)
+      }else{
+            //cuando la puja es menor al valor de compra
+          // Registrar la nueva puja en la tabla BIDS
+            const insertBidQuery = `
+            INSERT INTO bids (bid_amount, iduser, idauction)
+            VALUES ($1, $2, $3)
+            RETURNING *;
+          `;
+          await db.query(insertBidQuery, [bid_amount, iduser, idauction]);
+
+          // Actualizar la puja actual en la tabla AUCTIONS
+          const updateAuctionQuery = `
+            UPDATE auctions 
+            SET current_bid = $1, iduser = $2
+            WHERE idauction = $3
+            RETURNING *;
+          `;
+          const auctionUpdate = await db.query(updateAuctionQuery, [bid_amount, iduser, idauction]);
+
+          await db.query('COMMIT');
+          return auctionUpdate.rows[0];
+      }
+     
+    } catch (error) {
+      await db.query('ROLLBACK');
+      console.error('Error al registrar la puja:', error.message);
+      throw new Error('No se pudo registrar la puja.');
+    } finally {
+    // db.release();  
+    }
+  }
+
+  async admitirCompraInmediata(auctionId, bidAmount, userId) {
+    // 1. Obtener los detalles de la subasta
+    const query = `
+      SELECT a.idauction, a.buy_now_price, a.end_time, a.current_bid 
+      FROM auctions a 
+      WHERE a.idauction = $1
+    `;
+    const auctionResult = await db.query(query, [auctionId]);
+    
+    if (auctionResult.rows.length === 0) {
+      console.log("Auction not found");
+    }
   
-
-  //const client = await db.getClient();  // Obtener un cliente para la transacción
+    const auction = auctionResult.rows[0];
   
-  try {
-   // await client.query('BEGIN');  // Iniciar transacción
-
-    // Verificar si el valor de la puja es mayor que la puja actual
-    const auctionQuery = `
-      SELECT current_bid, end_time
-      FROM auctions
+    // 2. Verificar si el valor ofrecido es igual o mayor al precio de compra inmediata
+    if (bidAmount >= auction.buy_now_price) {
+      // Compra inmediata
+      
+      // Aquí deberías finalizar la subasta, ya sea eliminándola o marcándola como completada
+     await finalizeAuction(auctionId, userId);
+      
+      return { success: true, message: "Compra inmediata completada con éxito." };
+    } else {
+      return { success: false, message: "El valor ofrecido no alcanza el precio de compra inmediata." };
+    }
+  }
+  
+  // Función para finalizar la subasta
+  async finalizeAuction(auctionId, userId) {
+    const updateQuery = `
+      UPDATE auctions 
+      SET end_time = NOW() 
       WHERE idauction = $1
     `;
-    const auctionResult = await db.query(auctionQuery, [idauction]);
-    
-    const auction = auctionResult.rows[0];
-
-    if (!auction) {
-      throw new Error('La subasta no existe.');
-    }
-
-    const tiempoRestante = new Date(auction.end_time) - new Date();
-    if (tiempoRestante <= 0) {
-      console.log('La subasta ha terminado.');
-    }
-
-    if (bid_amount <= auction.current_bid) {
-      console.log('La puja debe ser mayor que la actual.');
-      return  //break
-    }
-
-    // Registrar la nueva puja en la tabla BIDS
-    const insertBidQuery = `
-      INSERT INTO bids (bid_amount, iduser, idauction)
-      VALUES ($1, $2, $3)
-      RETURNING *;
-    `;
-    await db.query(insertBidQuery, [bid_amount, iduser, idauction]);
-
-    // Actualizar la puja actual en la tabla AUCTIONS
-    const updateAuctionQuery = `
-      UPDATE auctions 
-      SET current_bid = $1, iduser = $2
-      WHERE idauction = $3
-      RETURNING *;
-    `;
-    const auctionUpdate = await db.query(updateAuctionQuery, [bid_amount, iduser, idauction]);
-
-    await db.query('COMMIT');
-    return auctionUpdate.rows[0];
-  } catch (error) {
-    await db.query('ROLLBACK');
-    console.error('Error al registrar la puja:', error.message);
-    throw new Error('No se pudo registrar la puja.');
-  } finally {
-   // db.release();  
+    await db.query(updateQuery, [auctionId]);
+  
+    console.log(`Auction ${auctionId} finalizada por el usuario ${userId}`);
   }
-}
+ 
+
 
 }
 
