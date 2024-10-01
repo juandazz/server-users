@@ -26,37 +26,53 @@ const controller = {
     },
     
 
-    obtenerSubastas: async (  ) => {
-
-        const productosSubasta =[]
-
-        const productosSubastaDB = await dbConnection.auction.getUserAuctions()
-
-
-
-        for ( const productoSubastaDB of productosSubastaDB ) {
-            const unProductoSubasta = {}
-
-            unProductoSubasta.id = productoSubastaDB.idproduct
-            unProductoSubasta.name = productoSubastaDB.name
-            unProductoSubasta.description = productoSubastaDB.description
-            unProductoSubasta.imageUrl = productoSubastaDB.image
-            unProductoSubasta.currentBid = productoSubastaDB.current_bid
-            unProductoSubasta.buyNowPrice = productoSubastaDB.buy_now_price
-            unProductoSubasta.auctionEndTime = productoSubastaDB.end_time
-
-            productosSubasta.push(unProductoSubasta)
-        }
-
-        return productosSubastaDB
-    },
-
-    registrateAuction: (auction) =>{
+    obtenerSubastas: async () => {
+        try {
+            const productosSubasta = [];
+            const productosSubastaDB = await dbConnection.auction.getUserAuctions();
     
-        return dbConnection.auction.createAuction(
+            for (const productoSubastaDB of productosSubastaDB) {
+                const unProductoSubasta = {};
+    
+                // Llamar a eliminarSubastaExpirada y verificar si la subasta ha expirado
+                const subastaEliminada = await controller.eliminarSubastaExpirada(productoSubastaDB.idauction);
+                
+                if (!subastaEliminada) {
+                    // Si la subasta no ha sido eliminada, se agrega a la lista de productos
+                    unProductoSubasta.id = productoSubastaDB.idauction;
+                    unProductoSubasta.idproduct = productoSubastaDB.idproduct;
+                    unProductoSubasta.name = productoSubastaDB.name;
+                    unProductoSubasta.description = productoSubastaDB.description;
+                    unProductoSubasta.imageUrl = productoSubastaDB.image;
+                    unProductoSubasta.currentBid = productoSubastaDB.current_bid;
+                    unProductoSubasta.buyNowPrice = productoSubastaDB.buy_now_price;
+                    unProductoSubasta.auctionEndTime = productoSubastaDB.end_time;
+    
+                    productosSubasta.push(unProductoSubasta);
+                } else {
+                    console.log(`Subasta ${productoSubastaDB.idauction} eliminada por estar expirada`);
+                }
+            }
+    
+            console.log(productosSubasta);
+            return productosSubasta;
+        } catch (error) {
+            console.error('Error al obtener las subastas:', error);
+            throw new Error('No se pudo obtener las subastas en el controller');
+        }
+    },
+    
+
+    registrateAuction: async(auction) =>{
+        
+    // Ejemplo de uso con una duración de 2 días
+    const fechaFin = obtenerFechaFinSubasta(auction.auctionEndTime);
+    console.log(fechaFin);
+  
+        return await dbConnection.auction.createAuction(
             auction.currentBid, 
             auction.buyNowPrice, 
-            auction.auctionEndTime, 
+            fechaFin, 
             auction.iduser, 
             auction.idproduct
         )
@@ -128,19 +144,19 @@ const controller = {
 
     eliminarSubastaExpirada: async (idauction) => {
         try {
-            
+            console.log(idauction + 'en delete')
             const resultAuction = await dbConnection.auction.getAuctionsById(idauction);
-    l
+    
             const currentTime = new Date();
             const auctionEndTime = new Date(resultAuction.end_time);
     
             if (auctionEndTime < currentTime) {
         
                 const deleteResult = await dbConnection.auction.deleteSubasta(idauction);
-    
+                console.log(deleteResult + 'deleted')
                 return deleteResult;
             } else {
-                throw new Error("La subasta aún no ha expirado.");
+               console.log('la subasta no ha experidado')
             }
         } catch (error) {
             console.error("Error al eliminar la subasta:", error);
@@ -156,7 +172,9 @@ const controller = {
             console.error("Error en la puja:", error.message);
             throw new Error('No se pudo registrar la puja.');
         }
-    }
+    },
+
+   
 }
     
 
@@ -170,6 +188,21 @@ const validatePassword = (password) => {
     return false
 }
 
+ //para parsear la fecha de la vista hacia la base de datos
+ const obtenerFechaFinSubasta=(duracionEnDias) => { 
+    const fechaActual = new Date();
+    
+    
+    // En lugar de usar setDate, calculamos manualmente los días, sumando los milisegundos correspondientes
+    const milisegundosPorDia = 24 * 60 * 60 * 1000;  // 1 día en milisegundos
+    const nuevaFecha = new Date(fechaActual.getTime() + duracionEnDias * milisegundosPorDia);
+    
+    // Convertir a formato ISO 8601 con milisegundos
+    const fechaISO = nuevaFecha.toISOString();
+    console.log(fechaISO);
+    return fechaISO;    
+  
+  }
 
 
 module.exports = controller

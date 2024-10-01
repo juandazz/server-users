@@ -115,18 +115,18 @@ class UserModel {
 
   async createAuction(current_bid, buy_now_price, end_time, iduser, idproduct) {
     // Asegúrate de que end_time esté en el formato correcto
-      const formattedEndTime = new Date(end_time).toISOString(); // Convierte a ISO 8601
-      
+      console.log(end_time + 'en db')
       const query = `
           INSERT INTO auctions (current_bid, buy_now_price, end_time, iduser, idproduct)
           VALUES ($1, $2, $3, $4, $5)
           RETURNING *;
       `;
       
-      const values = [current_bid, buy_now_price, formattedEndTime, iduser, idproduct];
+      const values = [current_bid, buy_now_price, end_time, iduser, idproduct];
       
       try {
           const result = await db.query(query, values);
+          console.log(result.rows[0])
           return result.rows[0];
       } catch (err) {
           console.error('Error al crear subasta:', err.message);
@@ -137,7 +137,7 @@ class UserModel {
 
 
   async deleteSubasta(idauction) {
-    const query = 'DELETE FROM subastas WHERE idproducto = $1 RETURNING *';
+    const query = 'DELETE FROM auctions WHERE idauction = $1 RETURNING *';
     const values = [idauction];
     const result = await db.query(query, values);
 
@@ -171,7 +171,7 @@ class UserModel {
   async getUserAuctions() {
     const query = `
     SELECT 
-      a.idauction, p.name, p.description, 
+      a.idauction, p.idproduct, p.name, p.description, 
       p.image, a.current_bid, a.buy_now_price, a.end_time 
     FROM auctions a, products p
     WHERE a.idproduct=p.idproduct`;
@@ -222,11 +222,12 @@ async registrarPuja(iduser, idauction, bid_amount) {
 
     const tiempoRestante = new Date(auction.end_time) - new Date();
     if (tiempoRestante <= 0) {
-      throw new Error('La subasta ha terminado.');
+      console.log('La subasta ha terminado.');
     }
 
     if (bid_amount <= auction.current_bid) {
-      throw new Error('La puja debe ser mayor que la actual.');
+      console.log('La puja debe ser mayor que la actual.');
+      return  //break
     }
 
     // Registrar la nueva puja en la tabla BIDS
