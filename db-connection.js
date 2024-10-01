@@ -128,7 +128,7 @@ class UserModel {
 
 
   async deleteSubasta(idauction) {
-    const query = 'DELETE FROM subastas WHERE idproducto = $1 RETURNING *';
+    const query = 'DELETE FROM auctions WHERE idproduct = $1 RETURNING *';
     const values = [idauction];
     const result = await db.query(query, values);
 
@@ -172,7 +172,7 @@ class UserModel {
 
 
   async getAuctions() {
-    const query = 'SELECT * FROM actions';
+    const query = 'SELECT * FROM auctions';
     const result = await db.query(query);
     return result.rows;
   }

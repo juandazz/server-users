@@ -42,7 +42,7 @@ app.post('/api/new/auction', (req, res) => {
 app.post('/api/new/bid', (req, res) => {
     try {
         const datosRecibidos = req.body;
-        res.json({ answer: controller.registerBid(datosRecibidos) }); // Cambiar al método correcto para registrar pujas
+        res.json({ answer: controller.registrarPuja(datosRecibidos) }); // Cambiar al método correcto para registrar pujas
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
