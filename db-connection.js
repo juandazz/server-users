@@ -4,10 +4,17 @@ const db = require('./database');
 //USUARIOS
 class UserModel {
 
+  
+
   async getClient () {
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,  // Asegúrate de tener esto configurado
+  });
+
     const client = await pool.connect();  // Esto te proporciona un cliente del pool de conexiones
     return client;
   }
+
   async createUser(name, email, age) {
     const query = 'INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING *';
     const values = [name, email, age];
@@ -104,6 +111,8 @@ class UserModel {
 
  class AuctionModel {
 
+ 
+
   async createAuction(current_bid, buy_now_price, end_time, iduser, idproduct) {
     // Asegúrate de que end_time esté en el formato correcto
       const formattedEndTime = new Date(end_time).toISOString(); // Convierte a ISO 8601
@@ -183,12 +192,19 @@ class UserModel {
     return result.rows[0];  // Devuelve la primera fila (subasta encontrada)
 }
 
+async getClient () {
+
+  const client = await pool.connect();  // Esto te proporciona un cliente del pool de conexiones
+  return client;
+}
 
 async registrarPuja(iduser, idauction, bid_amount) {
-  const client = await db.getClient();  // Obtener un cliente para la transacción
+  
+
+  //const client = await db.getClient();  // Obtener un cliente para la transacción
   
   try {
-    await client.query('BEGIN');  // Iniciar transacción
+   // await client.query('BEGIN');  // Iniciar transacción
 
     // Verificar si el valor de la puja es mayor que la puja actual
     const auctionQuery = `
@@ -196,7 +212,7 @@ async registrarPuja(iduser, idauction, bid_amount) {
       FROM auctions
       WHERE idauction = $1
     `;
-    const auctionResult = await client.query(auctionQuery, [idauction]);
+    const auctionResult = await db.query(auctionQuery, [idauction]);
     
     const auction = auctionResult.rows[0];
 
@@ -219,7 +235,7 @@ async registrarPuja(iduser, idauction, bid_amount) {
       VALUES ($1, $2, $3)
       RETURNING *;
     `;
-    await client.query(insertBidQuery, [bid_amount, iduser, idauction]);
+    await db.query(insertBidQuery, [bid_amount, iduser, idauction]);
 
     // Actualizar la puja actual en la tabla AUCTIONS
     const updateAuctionQuery = `
@@ -228,16 +244,16 @@ async registrarPuja(iduser, idauction, bid_amount) {
       WHERE idauction = $3
       RETURNING *;
     `;
-    const auctionUpdate = await client.query(updateAuctionQuery, [bid_amount, iduser, idauction]);
+    const auctionUpdate = await db.query(updateAuctionQuery, [bid_amount, iduser, idauction]);
 
-    await client.query('COMMIT');
+    await db.query('COMMIT');
     return auctionUpdate.rows[0];
   } catch (error) {
-    await client.query('ROLLBACK');
+    await db.query('ROLLBACK');
     console.error('Error al registrar la puja:', error.message);
     throw new Error('No se pudo registrar la puja.');
   } finally {
-    client.release();  
+   // db.release();  
   }
 }
 
