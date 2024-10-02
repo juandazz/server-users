@@ -174,6 +174,16 @@ const controller = {
         }
     },
 
+    finalizarSubasta: async ( idauction, iduser,) => {
+        try {
+            const result = await dbConnection.auction.finalizeAuction(iduser, idauction);
+            return result;
+        } catch (error) {
+            console.error("Error en finalizar subasta", error.message);
+            throw new Error('No se pudo finalizar subasta.');
+        }
+    },
+
    
 }
     
