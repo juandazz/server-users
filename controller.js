@@ -174,16 +174,25 @@ const controller = {
         }
     },
 
-    finalizarSubasta: async ( idauction, iduser,) => {
+    winnerAuction: async ( idauction) => {
         try {
-            const result = await dbConnection.auction.finalizeAuction(iduser, idauction);
+            const result = await dbConnection.auction.getAuctionWinner( idauction);
             return result;
         } catch (error) {
-            console.error("Error en finalizar subasta", error.message);
-            throw new Error('No se pudo finalizar subasta.');
+            console.error("Error en el ganador de subasta", error.message);
+            throw new Error('No se pudo obtener ganado - subasta.');
         }
     },
 
+    buyInAuction: async ( idauction, iduser, amount) => {
+        try {
+            const result = await dbConnection.auction.admitirCompraInmediata(idauction, iduser, amount);
+            return result;
+        } catch (error) {
+            console.error("Error en comprar subasta subasta", error.message);
+            throw new Error('No se pudo comprar subasta.');
+        }
+    },
    
 }
     
@@ -198,21 +207,25 @@ const validatePassword = (password) => {
     return false
 }
 
- //para parsear la fecha de la vista hacia la base de datos
- const obtenerFechaFinSubasta=(duracionEnDias) => { 
+const obtenerFechaFinSubasta = (duracionEnDias) => {
     const fechaActual = new Date();
-    
-    
-    // En lugar de usar setDate, calculamos manualmente los días, sumando los milisegundos correspondientes
-    const milisegundosPorDia = 24 * 60 * 60 * 1000;  // 1 día en milisegundos
-    const nuevaFecha = new Date(fechaActual.getTime() + duracionEnDias * milisegundosPorDia);
-    
-    // Convertir a formato ISO 8601 con milisegundos
-    const fechaISO = nuevaFecha.toISOString();
-    console.log(fechaISO);
-    return fechaISO;    
   
-  }
+    // Milisegundos correspondientes a un día
+    const milisegundosPorDia = 24 * 60 * 60 * 1000;
+    
+    // Calculamos la nueva fecha sumando los días
+    let nuevaFecha = new Date(fechaActual.getTime() + duracionEnDias * milisegundosPorDia);
+    
+    // Ajustar la hora manualmente a UTC-5 (Bogotá)
+    nuevaFecha.setHours(nuevaFecha.getHours() - 5);
+    
+    // Convertir a formato ISO 8601
+    const fechaISO = nuevaFecha.toISOString();
+    
+    console.log(fechaISO);
+    return fechaISO;
+  };
+  
 
 
 module.exports = controller

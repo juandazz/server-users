@@ -66,17 +66,32 @@ app.post('/api/new/bid', async (req, res) => {
 });
 
 
-app.post('/api/endAuction', async (req, res) => {
+app.post('/api/winnerAuction', async (req, res) => {
     try {
-        const {  idauction, iduser} = req.body;
-        console.log( idauction, iduser,)
-        const respuesta = await controller.finalizarSubasta( idauction, iduser);
+        const {  idauction} = req.body;
+        console.log( idauction)
+        const respuesta = await controller.winnerAuction( idauction);
         console.log(respuesta)
         res.json({ answer: respuesta }); // Cambiar al método correcto para registrar pujas
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 });
+
+
+app.post('/api/buyInmediatly', async (req, res) => {
+    try {
+        const { iduser, idauction, bidAmount} = req.body;
+        console.log( idauction)
+        const respuesta = await controller.buyInAuction( idauction, iduser, bidAmount);
+        console.log(respuesta)
+        res.json({ answer: respuesta }); // Cambiar al método correcto para registrar pujas
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
+
+
 
 
 app.post('/api/setCredits', (req, res) => {

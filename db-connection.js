@@ -333,7 +333,7 @@ class UserModel {
     }
   }
 
-  async admitirCompraInmediata(idauction, bid_amount, iduser) {
+  async admitirCompraInmediata(idauction, iduser,bid_amount ) {
     // 1. Obtener los detalles de la subasta
     const query = `
       SELECT a.idauction, a.buy_now_price, a.end_time, a.current_bid 
@@ -359,7 +359,6 @@ class UserModel {
       `;
       await db.query(insertBidQuery, [bid_amount, iduser, idauction]);
      
-      await this.finalizeAuction(idauction)
       
       return { success: true, message: "Compra inmediata completada con éxito." };
     } else {
@@ -379,6 +378,8 @@ class UserModel {
     `;
 
     const result = await db.query(query, [idauction]);
+     const resultadoFinal= await this.finalizeAuction(idauction)
+      console.log(resultadoFinal)
 
     // Si hay resultados, devolver el usuario ganador
     if (result.rows.length > 0) {
@@ -393,6 +394,8 @@ class UserModel {
   async finalizeAuction(auctionId, userId) {
     try {
       console.log('Finalizando la subasta...');
+
+     
 
       // Actualizar el campo end_time de la subasta al tiempo actual (finaliza inmediatamente)
       const updateQuery = `
@@ -411,10 +414,8 @@ class UserModel {
 
       console.log(`Subasta ${auctionId} finalizada por el usuario ${userId}`);
       
-      // Llamar a la función para obtener el ganador de la subasta
-      const winner = await this.getAuctionWinner(auctionId);
-      console.log(winner + 'winner')
-      return winner;
+     
+      return auctionResult;
     } catch (error) {
       console.error('Error al finalizar la subasta:', error.message);
       throw new Error('No se pudo finalizar la subasta.');
