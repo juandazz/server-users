@@ -134,7 +134,6 @@ class UserModel {
  
 
   async createAuction(current_bid, buy_now_price, end_time, iduser, idproduct, productName, productDescription, productImage) {
-    // Asegúrate de que end_time esté en el formato correcto
     console.log(end_time + ' en db');
     
     // Verificar si el producto ya existe en la base de datos
@@ -143,7 +142,6 @@ class UserModel {
     `;
   
     try {
-      // Consultar si el producto existe
       const checkResult = await db.query(checkProductQuery, [idproduct]);
       
       // Si el producto no existe, crear el producto
