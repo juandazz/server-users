@@ -154,8 +154,6 @@ class UserModel {
       }
   }
 
-
-
   async deleteSubasta(idauction) {
     try {
       // Iniciar una transacción
@@ -246,7 +244,7 @@ class UserModel {
   }
 
   async getAuctions() {
-    const query = 'SELECT * FROM actions';
+    const query = 'SELECT * FROM auctions';
     const result = await db.query(query);
     return result.rows;
   }
