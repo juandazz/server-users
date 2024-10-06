@@ -22,6 +22,20 @@ app.post('/api/registro', (req, res) => {
     }
 });
 
+app.post('/api/auth', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const usuarioAutenticado = await controller.autenticarUsuario(email, password);
+        if (usuarioAutenticado) {
+            res.status(200).json({ mensaje: 'Autenticación exitosa', usuario: usuarioAutenticado });
+        } else {
+            res.status(401).json({ mensaje: 'Autenticación fallida' });
+        }
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
+
 app.get('/api/subastas', async (req, res) => {
     try {
         res.json(await controller.obtenerSubastas());
@@ -50,6 +64,34 @@ app.post('/api/new/bid', async (req, res) => {
 });
 
 
+app.post('/api/winnerAuction', async (req, res) => {
+    try {
+        const {  idauction} = req.body;
+        console.log( idauction)
+        const respuesta = await controller.winnerAuction( idauction);
+        console.log(respuesta)
+        res.json({ answer: `Felicidades ${respuesta.name} has ganado la subasta` }); // Cambiar al método correcto para registrar pujas
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
+
+
+app.post('/api/buyInmediatly', async (req, res) => {
+    try {
+        const { iduser, idauction, bidAmount} = req.body;
+        console.log( idauction)
+        const respuesta = await controller.buyInAuction( idauction, iduser, bidAmount);
+        console.log(respuesta)
+        res.json({ answer: respuesta }); // Cambiar al método correcto para registrar pujas
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+});
+
+
+
+
 app.post('/api/setCredits', (req, res) => {
     try {
         const datos = req.body;
@@ -75,19 +117,7 @@ app.post('/api/echo', (req, res) => {
     res.json({ mensaje: 'Datos recibidos correctamente', datos: datosRecibidos });
 });
 
-app.post('/api/auth', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const usuarioAutenticado = await controller.autenticarUsuario(email, password);
-        if (usuarioAutenticado) {
-            res.status(200).json({ mensaje: 'Autenticación exitosa', usuario: usuarioAutenticado });
-        } else {
-            res.status(401).json({ mensaje: 'Autenticación fallida' });
-        }
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
-    }
-});
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
