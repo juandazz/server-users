@@ -133,26 +133,62 @@ class UserModel {
 
  
 
-  async createAuction(current_bid, buy_now_price, end_time, iduser, idproduct) {
-    // Asegúrate de que end_time esté en el formato correcto
-      console.log(end_time + 'en db')
-      const query = `
-          INSERT INTO auctions (current_bid, buy_now_price, end_time, iduser, idproduct)
-          VALUES ($1, $2, $3, $4, $5)
-          RETURNING *;
+  async createAuction(current_bid, buy_now_price, end_time, iduser, idproduct, productName, productDescription, productImage) {
+    console.log(end_time + ' en db');
+    
+    // Verificar si el producto ya existe en la base de datos
+    const checkProductQuery = `
+      SELECT * FROM products WHERE idproduct = $1;
+    `;
+  
+    try {
+      const checkResult = await db.query(checkProductQuery, [idproduct]);
+      
+      // Si el producto no existe, crear el producto
+      if (checkResult.rows.length === 0) {
+        await this.createProduct(idproduct, productName, productDescription, productImage);
+        console.log('Producto creado ya que no existía en la base de datos.');
+      }
+  
+      // Crear la subasta después de verificar/crear el producto
+      const auctionQuery = `
+        INSERT INTO auctions (current_bid, buy_now_price, end_time, iduser, idproduct)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *;
       `;
       
-      const values = [current_bid, buy_now_price, end_time, iduser, idproduct];
+      const auctionValues = [current_bid, buy_now_price, end_time, iduser, idproduct];
+      const result = await db.query(auctionQuery, auctionValues);
       
-      try {
-          const result = await db.query(query, values);
-          console.log(result.rows[0])
-          return result.rows[0];
-      } catch (err) {
-          console.error('Error al crear subasta:', err.message);
-          throw err; // Re-lanzar el error para manejarlo más arriba si es necesario
-      }
+      console.log(result.rows[0]);
+      return result.rows[0];
+    } catch (err) {
+      console.error('Error al crear subasta:', err.message);
+      throw err; // Re-lanzar el error para manejarlo más arriba si es necesario
+    }
   }
+  
+
+  async createProduct(idproduct, productName, productDescription, productImage) {
+    const query = `
+      INSERT INTO products (idproduct, name, description, image)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `;
+  
+    const values = [idproduct, productName, productDescription, productImage];
+  
+    try {
+      // Inserta el producto en la base de datos y devuelve el producto creado
+      const result = await db.query(query, values);
+      console.log('Producto creado:', result.rows[0]);
+      return result.rows[0];
+    } catch (err) {
+      console.error('Error al crear producto:', err.message);
+      throw err; // Re-lanzar el error para manejarlo en niveles superiores si es necesario
+    }
+  }
+  
 
   async deleteSubasta(idauction) {
     try {
