@@ -15,10 +15,10 @@ const controller = {
         const credits = 20; // El usuario nuevo inicia con esos credits
     
         if (valido) {
-    
-            return dbConnection.user.registrateUser(
+            const user=dbConnection.user.registrateUser(
                 name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3, credits
             );
+            return user;
         } else {
             
             return null;
