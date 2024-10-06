@@ -378,8 +378,8 @@ class UserModel {
     `;
 
     const result = await db.query(query, [idauction]);
-     const resultadoFinal= await this.finalizeAuction(idauction)
-      console.log(resultadoFinal)
+    const resultadoFinal= await this.finalizeAuction(idauction)
+    console.log(resultadoFinal)
 
     // Si hay resultados, devolver el usuario ganador
     if (result.rows.length > 0) {
@@ -391,11 +391,11 @@ class UserModel {
   }
 
   // Función para finalizar la subasta
-  async finalizeAuction(auctionId, userId) {
+  async finalizeAuction(auctionId) {
     try {
       console.log('Finalizando la subasta...');
-
-     
+      
+      const result=await this.getAuctionDetailsWithWinner(auctionId)
 
       // Actualizar el campo end_time de la subasta al tiempo actual (finaliza inmediatamente)
       const updateQuery = `
@@ -412,18 +412,54 @@ class UserModel {
         throw new Error('No se encontró la subasta o no se pudo actualizar.');
       }
 
-      console.log(`Subasta ${auctionId} finalizada por el usuario ${userId}`);
+      console.log(`Subasta ${auctionId} finalizada `);
       
      
-      return auctionResult;
+      return result;
     } catch (error) {
       console.error('Error al finalizar la subasta:', error.message);
       throw new Error('No se pudo finalizar la subasta.');
     }
   }
 
+    async getAuctionDetailsWithWinner(idauction) {
+      // Consulta para obtener el usuario que hizo la subasta, el ganador de la puja más alta y el producto subastado
+      const query = `
+          SELECT 
+              a.iduser AS auction_creator_id, 
+              u.iduser AS winner_id, 
+              p.idproduct 
+          FROM auctions a
+          JOIN bids b ON a.idauction = b.idauction
+          JOIN users u ON b.iduser = u.iduser
+          JOIN products p ON a.idproduct = p.idproduct
+          WHERE a.idauction = $1
+          ORDER BY b.bid_amount DESC
+          LIMIT 1
+      `;
+  
+      const result = await db.query(query, [idauction]);
+  
+      // Verificar si hay resultados
+      if (result.rows.length > 0) {
+          const auctionDetails = result.rows[0];
+          console.log(auctionDetails.auction_creator_id)
+          console.log(auctionDetails.winner_id)
+          console.log(auctionDetails.idproduct)
+          return {
+              auctionCreatorId: auctionDetails.auction_creator_id,
+              winnerId: auctionDetails.winner_id,
+              productId: auctionDetails.idproduct
+          };
+      } else {
+          throw new Error('No se encontraron datos para esta subasta');
+      }
+  }
+  
+  }
 
 
-}
+
+
 
 module.exports = { user: new UserModel(), auction: new AuctionModel()}

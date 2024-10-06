@@ -120,7 +120,13 @@ const controller = {
     },
 
     getCreditsUser:async(iduser)=>{
-        return await dbConnection.user.getCreditsUser(iduser)
+        try {
+            return await dbConnection.user.getCreditsUser(iduser)
+        } catch (error) {
+            console.error('Error al obtener creditos:', error);
+            throw new Error('No se pudo obtener creditos');
+        }
+       
     },
 
     setCreditsUser:async(iduser,credits)=>{

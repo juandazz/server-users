@@ -72,7 +72,7 @@ app.post('/api/winnerAuction', async (req, res) => {
         console.log( idauction)
         const respuesta = await controller.winnerAuction( idauction);
         console.log(respuesta)
-        res.json({ answer: respuesta }); // Cambiar al método correcto para registrar pujas
+        res.json({ answer: `Felicidades ${respuesta.name} has ganado la subasta` }); // Cambiar al método correcto para registrar pujas
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
