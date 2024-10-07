@@ -68,6 +68,7 @@ const controller = {
     // Ejemplo de uso con una duración de 2 días
     const fechaFin = obtenerFechaFinSubasta(auction.auctionEndTime);
     console.log(fechaFin);
+    console.log(auction.name)
         return await dbConnection.auction.createAuction(
             auction.currentBid, 
             auction.buyNowPrice, 
