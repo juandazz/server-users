@@ -66,7 +66,6 @@ const controller = {
                 }
             }
     
-            console.log(productosSubasta);
             return productosSubasta;
         } catch (error) {
             console.error('Error al obtener las subastas:', error);
@@ -79,8 +78,6 @@ const controller = {
         
     // Ejemplo de uso con una duración de 2 días
     const fechaFin = obtenerFechaFinSubasta(auction.auctionEndTime);
-    console.log(fechaFin);
-    console.log(auction.name)
         return await dbConnection.auction.createAuction(
             auction.currentBid, 
             auction.buyNowPrice, 
@@ -185,10 +182,11 @@ const controller = {
         }
     },
 
-    registrarPuja: async (iduser, idauction, bid_amount) => {
+    registrarPuja: async (datosRecibidos) => {
         try {
-            const result = await dbConnection.auction.registrarPuja(iduser, idauction, bid_amount);
-            return result;
+            const result = await dbConnection.auction.registrarPuja(datosRecibidos.iduser, datosRecibidos.idauction, datosRecibidos.bidAmount);
+            console.log(result)
+            return await result;
         } catch (error) {
             console.error("Error en la puja:", error.message);
             throw new Error('No se pudo registrar la puja.');

@@ -275,7 +275,6 @@ class UserModel {
     `;
 
     const result = await db.query(query);
-    console.log(await result.rows)
     return await result.rows;
   }
 
@@ -331,19 +330,20 @@ class UserModel {
       console.log(`Verificando compra inmediata... Puja: ${bid_amount}, Precio de compra inmediata: ${auction.buy_now_price}`);
       if (auction.buy_now_price && bid_amount >= auction.buy_now_price) {
         console.log('El valor de la puja es igual o mayor que el precio de compra inmediata.');
-        return await this.admitirCompraInmediata(idauction, bid_amount, iduser);
+        return await this.admitirCompraInmediata(idauction, iduser,bid_amount);
       } else {
         console.log('El valor de la puja es menor que el precio de compra inmediata. Registrando puja...');
       
-            //cuando la puja es menor al valor de compra
-          // Registrar la nueva puja en la tabla BIDS
-            const insertBidQuery = `
-            INSERT INTO bids (bid_amount, iduser, idauction)
-            VALUES ($1, $2, $3)
-            RETURNING *;
-          `;
-          await db.query(insertBidQuery, [bid_amount, iduser, idauction]);
+        //cuando la puja es menor al valor de compra
+      // Registrar la nueva puja en la tabla BIDS
+        const insertBidQuery = `
+        INSERT INTO bids (bid_amount, iduser, idauction)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+         const insertarPuja= await db.query(insertBidQuery, [bid_amount, iduser, idauction]);
 
+         console.log(insertarPuja)
           // Actualizar la puja actual en la tabla AUCTIONS
           const updateAuctionQuery = `
             UPDATE auctions 
@@ -355,7 +355,7 @@ class UserModel {
 
           await db.query('COMMIT');
           console.log(auctionUpdate.rows[0])
-          return auctionUpdate.rows[0];
+          return await auctionUpdate.rows[0];
       }
      
     } catch (error) {
@@ -393,6 +393,8 @@ class UserModel {
       `;
       await db.query(insertBidQuery, [bid_amount, iduser, idauction]);
      
+      const resultadoFinal = await this.getAuctionWinner(idauction);
+
       
       return { success: true, message: "Compra inmediata completada con éxito." };
     } else {
@@ -401,28 +403,43 @@ class UserModel {
   }
 
   async getAuctionWinner(idauction) {
-    // Consulta para obtener la puja más alta para una subasta específica
+    // Consulta para obtener la puja más alta y el producto para una subasta específica
     const query = `
-        SELECT u.iduser, u.name, u.surname, b.bid_amount 
+        SELECT u.iduser, u.name, u.surname, b.bid_amount, p.idproduct, p.name as pname, p.description
         FROM bids b
         JOIN users u ON b.iduser = u.iduser
+        JOIN auctions a ON a.idauction = b.idauction
+        JOIN products p ON p.idproduct = a.idproduct
         WHERE b.idauction = $1
         ORDER BY b.bid_amount DESC
         LIMIT 1
     `;
 
     const result = await db.query(query, [idauction]);
-    const resultadoFinal= await this.finalizeAuction(idauction)
-    console.log(resultadoFinal)
+    const resultadoFinal = await this.finalizeAuction(idauction);
+    console.log(resultadoFinal);
 
-    // Si hay resultados, devolver el usuario ganador
+    // Si hay resultados, devolver el usuario ganador y el producto
     if (result.rows.length > 0) {
-      console.log(result.rows[0])
-        return result.rows[0];  // Devuelve la fila con el ganador
+        console.log("Ganador:", result.rows[0]);
+        return {
+            winner: {
+                idUser: result.rows[0].iduser,
+                name: result.rows[0].name,
+                surname: result.rows[0].surname,
+                bidAmount: result.rows[0].bid_amount
+            },
+            product: {
+                idProduct: result.rows[0].idproduct,
+                productName: result.rows[0].pname,
+                description: result.rows[0].description
+            }
+        };
     } else {
         throw new Error('No hay pujas para esta subasta');
     }
   }
+
 
   // Función para finalizar la subasta
   async finalizeAuction(auctionId) {
