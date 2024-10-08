@@ -44,10 +44,11 @@ app.get('/api/subastas', async (req, res) => {
     }
 });
 
-app.post('/api/new/auction', (req, res) => {
+app.post('/api/new/auction', async(req, res) => {
     try {
         const datosRecibidos = req.body;
-        res.json({ answer: controller.registrateAuction(datosRecibidos) }); // Verifica si este método es correcto
+        const respuesta= await controller.registrateAuction(datosRecibidos)
+        res.json({ answer: respuesta  }); // Verifica si este método es correcto
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
@@ -56,7 +57,8 @@ app.post('/api/new/auction', (req, res) => {
 app.post('/api/new/bid', async (req, res) => {
     try {
         const datosRecibidos = req.body;
-        res.json({ answer: controller.registrarPuja(datosRecibidos) }); // Cambiar al método correcto para registrar pujas
+        const registro=await controller.registrarPuja(datosRecibidos)
+        res.json({ answer:  registro}); // Cambiar al método correcto para registrar pujas
        
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
@@ -70,7 +72,9 @@ app.post('/api/winnerAuction', async (req, res) => {
         console.log( idauction)
         const respuesta = await controller.winnerAuction( idauction);
         console.log(respuesta)
-        res.json({ answer: `Felicidades ${respuesta.name} has ganado la subasta` }); // Cambiar al método correcto para registrar pujas
+        
+        res.json({ answer: `Felicidades ${respuesta.winner.name} has ganado la subasta
+            por ${respuesta.product.productName } ` }); // Cambiar al método correcto para registrar pujas
     } catch (error) {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
