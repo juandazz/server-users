@@ -1,7 +1,14 @@
 const dbConnection = require('./db-connection');
 
+const Inventory = require('./inventory');
+
+
+
+
 const controller = {
-    registrarUsuario: (user) => {
+
+
+    registrarUsuario: async(user) => {
 
         let valido = true
        
@@ -12,12 +19,17 @@ const controller = {
             valido = false;
         }
     
-        const credits = 20; // El usuario nuevo inicia con esos credits
+        const credits = 0; // El usuario nuevo inicia con esos credits
     
         if (valido) {
-            const user=dbConnection.user.registrateUser(
+            const user=await dbConnection.user.registrateUser(
                 name, surname, nickname, email, password, securityQuestion1, securityQuestion2, securityQuestion3, credits
             );
+            console.log(user.iduser)
+
+            const inventario= await Inventory.inventory.registerUserInventary(user.iduser.toString())
+            console.log(inventario)
+
             return user;
         } else {
             
