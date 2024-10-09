@@ -1,6 +1,6 @@
 const assert = require('assert');
-const dbConnection = require('./db-connection');
-const { autenticarUsuario } = require('./controller'); // Importa la función a probar
+const dbConnection = require('../db-connection');
+const { autenticarUsuario } = require('../controller'); // Importa la función a probar
 
 // Mock de dbConnection para autenticación
 dbConnection.authenticateUser = (email, password) => {
