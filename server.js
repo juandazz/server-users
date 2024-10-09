@@ -10,7 +10,7 @@ app.use(morgan('dev'));
 app.use(cors());
 
 app.get('/api/saludo', (req, res) => {
-    res.json({ mensaje: '¡Hola desde el servidor Express!' });
+    res.status(200).json({ mensaje: '¡Hola desde el servidor Express!' });
 });
 
 app.post('/api/registro', (req, res) => {
@@ -137,5 +137,5 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 app.listen(port, 'localhost', () => {
-    console.log(`Servidor Express escuchando en http://localhost:${port}`);
+    console.log(`Servidor Express escuchando en http://35.237.168.79:${port}`);
 });
