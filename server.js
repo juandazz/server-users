@@ -137,5 +137,5 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 app.listen(port, 'localhost', () => {
-    console.log(`Servidor Express escuchando en http://35.237.168.79:${port}`);
+    console.log(`Servidor Express escuchando en http://localhost:${port}`);
 });
