@@ -27,7 +27,14 @@ const controller = {
             );
             console.log(user.iduser)
 
-            const inventario= await Inventory.inventory.registerUserInventary(user.iduser.toString())
+            const userI = {
+
+                  user: user.iduser.toString()
+                
+            }
+
+
+            const inventario= await Inventory.inventory.registerUserInventary(userI)
             console.log(inventario)
 
             return user;
@@ -206,6 +213,10 @@ const controller = {
     buyInAuction: async ( idauction, iduser, amount) => {
         try {
             const result = await dbConnection.auction.admitirCompraInmediata(idauction, iduser, amount);
+            const trasfer=await dbConnection.auction.getAuctionDetailsWithWinner(idauction);
+
+            const inventarioTransfer= await Inventory.inventory.transferObject(trasfer.auctionCreatorId, trasfer.winnerId, trasfer.productId)
+            console.log(inventarioTransfer)
             return result;
         } catch (error) {
             console.error("Error en comprar subasta subasta", error.message);

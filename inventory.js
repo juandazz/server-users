@@ -4,12 +4,12 @@
     async registerUserInventary(iduser) {    
             console.log('registerInventary ' + iduser)
         try {
-            const response = await fetch('http://localhost:5000/usuarios', {
+            const response = await fetch('http://35.237.168.79:5000/usuarios', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ iduser })
+                body: JSON.stringify({ user: Object(iduser) })
             });
             const data = await response.json();
             console.log('Respuesta:', data);
@@ -21,7 +21,8 @@
 
     async transferObject(fromUser, toUser, objetoId) { 
         try {
-            const response = await fetch('http://localhost:5000/transfer-object', {
+            console.log(fromUser  + 'skksks', toUser, objetoId)
+            const response = await fetch('http://35.237.168.79:5000/transfer-object', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -38,7 +39,7 @@
     // Usando fetch
     async deactivateObject (user, objetoId) {
         try {
-            const response = await fetch(`http://localhost:5000/deactivateObject/${user}/${objetoId}`, {
+            const response = await fetch(`http://35.237.168.79:5000/deactivateObject/${user}/${objetoId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
@@ -55,7 +56,7 @@
     // Usando fetch
     async activateObject(user, objetoId) {
         try {
-            const response = await fetch(`http://localhost:5000/activateObject/${user}/${objetoId}`, {
+            const response = await fetch(`http://35.237.168.79:5000/activateObject/${user}/${objetoId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
