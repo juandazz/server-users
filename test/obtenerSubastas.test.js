@@ -1,6 +1,6 @@
 const assert = require('assert');
-const dbConnection = require('./db-connection');
-const { obtenerSubastas } = require('./controller');  
+const dbConnection = require('../db-connection');
+const { obtenerSubastas } = require('../controller');  
 
 // Mock de dbConnection
 dbConnection.auction = {
