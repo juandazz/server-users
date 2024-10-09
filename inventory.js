@@ -9,7 +9,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ iduser })
+                body: JSON.stringify({ user: Object(iduser) })
             });
             const data = await response.json();
             console.log('Respuesta:', data);
@@ -21,6 +21,7 @@
 
     async transferObject(fromUser, toUser, objetoId) { 
         try {
+            console.log(fromUser  + 'skksks', toUser, objetoId)
             const response = await fetch('http://35.237.168.79:5000/transfer-object', {
                 method: 'POST',
                 headers: {
